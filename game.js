@@ -1,4 +1,4 @@
-const gameState = { highlighted: 0 };
+const gameState = { highlighted: 0, score: 0 };
 let movingRight = false;
 let movingLeft = false;
 

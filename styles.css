@@ -11,11 +11,19 @@
   padding-left: 0.5rem;
 }
 
-.game-container {
+.container {
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 100vh;
+}
+
+.game-container {
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.05), 2px 2px 5px rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  padding: 5rem;
+}
+.score {
 }
 
 .game-text {
