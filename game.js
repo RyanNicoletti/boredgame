@@ -2,7 +2,7 @@ const gameState = { highlighted: 0 };
 let movingRight = false;
 let movingLeft = false;
 
-const gameText = document.querySelector(".game-text").textContent;
+let gameText = document.querySelector(".game-text").textContent;
 const gameTextElement = document.querySelector(".game-text");
 
 function createCharacterSpans() {
@@ -42,9 +42,31 @@ function moveLeft() {
   animate();
 }
 
+function generateGameString(length = 30) {
+  const letters = "abcdefghijklmnopqrstuvwxyz";
+  let randomString = "";
+  while (length > 0) {
+    randomString += letters[Math.floor(Math.random() * 26)];
+    length--;
+  }
+  return randomString;
+}
+
 function resetPosition(index) {
   moveHighlight(index);
   gameState.highlighted = index;
+}
+
+function setTarget(index) {
+  document.querySelector(".target")?.classList.remove("target");
+  document.getElementById(`char-${index}`).classList.add("target");
+}
+
+function initGame() {
+  gameText = generateGameString();
+  createCharacterSpans();
+  resetPosition(0);
+  setTarget(gameText.length - (Math.floor(Math.random() * 4) + 7));
 }
 
 document.addEventListener("keydown", function (event) {
@@ -59,17 +81,16 @@ document.addEventListener("keydown", function (event) {
 document.addEventListener("keyup", function (event) {
   if (event.key === "l") {
     movingRight = false;
-    // resetPosition(target);
-    // updateTarget
+    resetPosition(gameText.length - 1);
+    setTarget(Math.floor(Math.random() * 4) + 5);
   }
   if (event.key === "h") {
     movingLeft = false;
-    // resetPosition(target);
-    // updateTarget
+    resetPosition(0);
+    setTarget(gameText.length - (Math.floor(Math.random() * 4) + 7));
   }
 });
 
 window.addEventListener("load", function () {
-  createCharacterSpans();
-  resetPosition(0);
+  initGame();
 });

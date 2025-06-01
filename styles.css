@@ -2,6 +2,15 @@
   background-color: lightgreen;
 }
 
+.target {
+  border: solid lightgreen;
+}
+
+[id*="char"] {
+  padding-right: 0.5rem;
+  padding-left: 0.5rem;
+}
+
 .game-container {
   display: flex;
   justify-content: center;
