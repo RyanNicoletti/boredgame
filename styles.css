@@ -1,0 +1,14 @@
+.highlighted {
+  background-color: lightgreen;
+}
+
+.game-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+.game-text {
+  font-size: 2rem;
+}
