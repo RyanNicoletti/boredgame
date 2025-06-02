@@ -1,4 +1,6 @@
-const gameState = {
+import { createHeartSVG } from "./hearts.js";
+
+const initialGameState = {
   highlighted: 0,
   score: 0,
   currentHearts: 3,
@@ -10,6 +12,7 @@ const gameState = {
   startingLeft: false,
   noKeyUp: false,
 };
+const gameState = {};
 const animationDuration = 800;
 let movingRight = false;
 let movingLeft = false;
@@ -84,6 +87,7 @@ function setTarget(index) {
 }
 
 function initGame() {
+  Object.assign(gameState, initialGameState);
   gameText = generateGameString();
   updateHeartDisplay(gameState.currentHearts);
   createCharacterSpans();
@@ -217,148 +221,19 @@ function animateEndPosition() {
   }, animationDuration);
 }
 
-function gameOver() {}
-
-document.addEventListener("keydown", function (event) {
-  if (gameState.isAnimating) {
-    return;
-  }
-  if (event.key === "l" && !movingRight) {
-    if (gameState.startingRight) {
-      gameState.noKeyUp = true;
-      return;
-    }
-    gameState.noKeyUp = false;
-    moveRight();
-  }
-  if (event.key === "h" && !movingLeft) {
-    if (gameState.startingLeft) {
-      gameState.noKeyUp = true;
-      return;
-    }
-    gameState.noKeyUp = false;
-    moveLeft();
-  }
-});
-
-document.addEventListener("keyup", function (event) {
-  if (gameState.isAnimating || gameState.noKeyUp) {
-    return;
-  }
-  if (event.key === "l") {
-    movingRight = false;
-    gameState.isAnimating = true;
-    animateEndPosition();
-    setTimeout(() => {
-      updateScore();
-      resetRight();
-      gameState.isAnimating = false;
-    }, animationDuration + 200);
-  }
-  if (event.key === "h") {
-    movingLeft = false;
-    gameState.isAnimating = true;
-    animateEndPosition();
-    setTimeout(() => {
-      updateScore();
-      resetLeft();
-      gameState.isAnimating = false;
-    }, animationDuration + 200);
-  }
-});
-
-window.addEventListener("load", function () {
-  initGame();
-});
-
-function createHeartSVG(type) {
-  const heartSVG = document.createElement("div");
-  heartSVG.classList.add("heart");
-
-  if (type === "half") {
-    heartSVG.classList.add("heart-half");
-  }
-  heartSVG.innerHTML = heartTemplates[type];
-
-  return heartSVG;
+function openGameOverModal() {
+  const gameOverModal = document.getElementById("gameover-modal");
+  gameOverModal.classList.add("show");
 }
 
-const heartTemplates = {
-  full: `
-    <svg width="20" height="18" viewBox="0 0 16 14">
-      <rect x="2" y="1" width="2" height="2" fill="#ff6b6b"/>
-      <rect x="6" y="1" width="2" height="2" fill="#ff6b6b"/>
-      <rect x="1" y="3" width="2" height="2" fill="#ff6b6b"/>
-      <rect x="3" y="3" width="2" height="2" fill="#ff6b6b"/>
-      <rect x="5" y="3" width="2" height="2" fill="#ff6b6b"/>
-      <rect x="7" y="3" width="2" height="2" fill="#ff6b6b"/>
-      <rect x="9" y="3" width="2" height="2" fill="#ff6b6b"/>
-      <rect x="1" y="5" width="2" height="2" fill="#ff6b6b"/>
-      <rect x="3" y="5" width="2" height="2" fill="#ff6b6b"/>
-      <rect x="5" y="5" width="2" height="2" fill="#ff6b6b"/>
-      <rect x="7" y="5" width="2" height="2" fill="#ff6b6b"/>
-      <rect x="9" y="5" width="2" height="2" fill="#ff6b6b"/>
-      <rect x="2" y="7" width="2" height="2" fill="#ff6b6b"/>
-      <rect x="4" y="7" width="2" height="2" fill="#ff6b6b"/>
-      <rect x="6" y="7" width="2" height="2" fill="#ff6b6b"/>
-      <rect x="8" y="7" width="2" height="2" fill="#ff6b6b"/>
-      <rect x="3" y="9" width="2" height="2" fill="#ff6b6b"/>
-      <rect x="5" y="9" width="2" height="2" fill="#ff6b6b"/>
-      <rect x="7" y="9" width="2" height="2" fill="#ff6b6b"/>
-      <rect x="5" y="11" width="2" height="2" fill="#ff6b6b"/>
-    </svg>
-  `,
-  half: `
-    <svg width="20" height="18" viewBox="0 0 16 14">
-      <rect x="2" y="1" width="2" height="2" fill="#ff6b6b"/>
-      <rect x="6" y="1" width="2" height="2" fill="#ff6b6b"/>
-      <rect x="1" y="3" width="2" height="2" fill="#ff6b6b"/>
-      <rect x="3" y="3" width="2" height="2" fill="#ff6b6b"/>
-      <rect x="5" y="3" width="2" height="2" fill="#ff6b6b"/>
-      <rect x="7" y="3" width="2" height="2" fill="#ff6b6b"/>
-      <rect x="9" y="3" width="2" height="2" fill="#ff6b6b"/>
-      <rect x="1" y="5" width="2" height="2" fill="#ff6b6b"/>
-      <rect x="3" y="5" width="2" height="2" fill="#ff6b6b"/>
-      <rect x="5" y="5" width="2" height="2" fill="#ff6b6b"/>
-      <rect x="7" y="5" width="2" height="2" fill="#ff6b6b"/>
-      <rect x="9" y="5" width="2" height="2" fill="#ff6b6b"/>
-      <rect x="2" y="7" width="2" height="2" fill="#ff6b6b"/>
-      <rect x="4" y="7" width="2" height="2" fill="#ff6b6b"/>
-      <rect x="6" y="7" width="2" height="2" fill="#ff6b6b"/>
-      <rect x="8" y="7" width="2" height="2" fill="#ff6b6b"/>
-      <rect x="3" y="9" width="2" height="2" fill="#ff6b6b"/>
-      <rect x="5" y="9" width="2" height="2" fill="#ff6b6b"/>
-      <rect x="7" y="9" width="2" height="2" fill="#ff6b6b"/>
-      <rect x="5" y="11" width="2" height="2" fill="#ff6b6b"/>
-    </svg>
-  `,
-  empty: `
-    <svg width="20" height="18" viewBox="0 0 16 14" class="heart-empty">
-      <rect x="2" y="1" width="2" height="2"/>
-      <rect x="6" y="1" width="2" height="2"/>
-      <rect x="1" y="3" width="2" height="2"/>
-      <rect x="3" y="3" width="2" height="2"/>
-      <rect x="5" y="3" width="2" height="2"/>
-      <rect x="7" y="3" width="2" height="2"/>
-      <rect x="9" y="3" width="2" height="2"/>
-      <rect x="1" y="5" width="2" height="2"/>
-      <rect x="3" y="5" width="2" height="2"/>
-      <rect x="5" y="5" width="2" height="2"/>
-      <rect x="7" y="5" width="2" height="2"/>
-      <rect x="9" y="5" width="2" height="2"/>
-      <rect x="2" y="7" width="2" height="2"/>
-      <rect x="4" y="7" width="2" height="2"/>
-      <rect x="6" y="7" width="2" height="2"/>
-      <rect x="8" y="7" width="2" height="2"/>
-      <rect x="3" y="9" width="2" height="2"/>
-      <rect x="5" y="9" width="2" height="2"/>
-      <rect x="7" y="9" width="2" height="2"/>
-      <rect x="5" y="11" width="2" height="2"/>
-    </svg>
-  `,
-};
+function closeGameOverModal() {
+  const gameOverModal = document.getElementById("gameover-modal");
+  gameOverModal.classList.remove("show");
+}
 
-// LEADERBOARD MODAL
+function gameOver() {
+  openGameOverModal();
+}
 
 function openLeaderboardModal() {
   const modal = document.getElementById("leaderboard-modal");
@@ -397,10 +272,23 @@ function loadLeaderboard() {
 }
 
 document.addEventListener("DOMContentLoaded", function () {
+  initGame();
+  setupEventListeners();
+});
+
+function setupEventListeners() {
   const leaderboardBtn = document.getElementById("leaderboard-btn");
   const modal = document.getElementById("leaderboard-modal");
-  const closeBtn = document.querySelector(".modal-close");
-  const backdrop = document.querySelector(".modal-backdrop");
+  const closeBtn = document.querySelectorAll(".modal-close");
+  const backdrop = document.querySelectorAll(".modal-backdrop");
+
+  const restartGameBtn = document.querySelector(".restart-btn");
+
+  restartGameBtn.addEventListener("click", function (e) {
+    e.preventDefault();
+    closeGameOverModal();
+    initGame();
+  });
 
   leaderboardBtn.addEventListener("click", function (e) {
     e.preventDefault();
@@ -416,4 +304,52 @@ document.addEventListener("DOMContentLoaded", function () {
       closeLeaderboardModal();
     }
   });
-});
+
+  document.addEventListener("keydown", function (event) {
+    if (gameState.isAnimating) {
+      return;
+    }
+    if (event.key === "l" && !movingRight) {
+      if (gameState.startingRight) {
+        gameState.noKeyUp = true;
+        return;
+      }
+      gameState.noKeyUp = false;
+      moveRight();
+    }
+    if (event.key === "h" && !movingLeft) {
+      if (gameState.startingLeft) {
+        gameState.noKeyUp = true;
+        return;
+      }
+      gameState.noKeyUp = false;
+      moveLeft();
+    }
+  });
+
+  document.addEventListener("keyup", function (event) {
+    if (gameState.isAnimating || gameState.noKeyUp) {
+      return;
+    }
+    if (event.key === "l") {
+      movingRight = false;
+      gameState.isAnimating = true;
+      animateEndPosition();
+      setTimeout(() => {
+        updateScore();
+        resetRight();
+        gameState.isAnimating = false;
+      }, animationDuration + 200);
+    }
+    if (event.key === "h") {
+      movingLeft = false;
+      gameState.isAnimating = true;
+      animateEndPosition();
+      setTimeout(() => {
+        updateScore();
+        resetLeft();
+        gameState.isAnimating = false;
+      }, animationDuration + 200);
+    }
+  });
+}
