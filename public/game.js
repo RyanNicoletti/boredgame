@@ -140,6 +140,10 @@ function removeHeart() {
     heartsContainer.lastElementChild.remove();
   } else {
     heartsContainer.lastElementChild.remove();
+    if (heartsContainer.lastElementChild === null) {
+      gameOver();
+      return;
+    }
     heartsContainer.lastElementChild.remove();
     heartsContainer.appendChild(createHeartSVG("half"));
   }
@@ -295,9 +299,13 @@ function setupEventListeners() {
     openLeaderboardModal();
   });
 
-  closeBtn.addEventListener("click", closeLeaderboardModal);
+  closeBtn.forEach((btn) => {
+    btn.addEventListener("click", closeLeaderboardModal);
+  });
 
-  backdrop.addEventListener("click", closeLeaderboardModal);
+  backdrop.forEach((el) => {
+    el.addEventListener("click", closeLeaderboardModal);
+  });
 
   document.addEventListener("keydown", function (e) {
     if (e.key === "Escape" && modal.classList.contains("show")) {
