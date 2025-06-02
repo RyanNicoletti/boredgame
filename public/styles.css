@@ -1,6 +1,28 @@
+* {
+  box-sizing: border-box;
+}
+
 @font-face {
   font-family: "silkscreen";
   src: url("fonts/silkscreen/slkscr.ttf");
+}
+
+.container {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  min-height: 100vh;
+  padding: 2rem;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto 3rem auto;
+}
+.header h1 {
+  font-family: "silkscreen", sans-serif;
 }
 
 .highlighted {
@@ -18,24 +40,25 @@
   transition: none;
 }
 
-.container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-}
-
 .game-container {
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.05), 2px 2px 5px rgba(0, 0, 0, 0.1);
   border-radius: 4px;
-  padding: 5rem;
-  position: relative;
+  display: grid;
+  grid-template-rows: auto auto;
+  align-self: start;
+  gap: 2rem;
+  padding: 3rem;
+  max-width: 1200px;
+  width: 100%;
+  margin: 11rem auto 0 auto;
+}
+
+.game-state {
+  display: flex;
+  justify-content: space-between;
 }
 
 .hearts {
-  position: absolute;
-  top: 1rem;
-  left: 3rem;
   display: flex;
   gap: 0.25rem;
   align-items: center;
@@ -68,14 +91,12 @@
 }
 
 .score {
-  position: absolute;
-  top: 1rem;
-  right: 5rem;
   font-family: "silkscreen", sans-serif;
   font-size: 1.7rem;
 }
 
 .game-text {
+  text-align: center;
   font-size: 2rem;
 }
 
