@@ -6,6 +6,9 @@ const gameState = {
   target: null,
   isAnimating: false,
   speed: 53,
+  startingRight: false,
+  startingLeft: false,
+  noKeyUp: false,
 };
 const animationDuration = 800;
 let movingRight = false;
@@ -62,6 +65,13 @@ function generateGameString(length = 30) {
 }
 
 function resetPosition(index) {
+  if (index === 0) {
+    gameState.startingLeft = true;
+    gameState.startingRight = false;
+  } else {
+    gameState.startingLeft = false;
+    gameState.startingRight = true;
+  }
   moveHighlight(index);
   gameState.highlighted = index;
   gameState.speed -= 2;
@@ -81,44 +91,72 @@ function initGame() {
   setTarget(gameText.length - (Math.floor(Math.random() * 4) + 7));
 }
 
-function updateHeartDisplay(currentHearts) {
+function updateHeartDisplay(hearts) {
   const heartsContainer = document.querySelector(".hearts");
-  heartsContainer.innerHTML = "";
-
-  const hearts = Math.floor(currentHearts);
-  if (hearts >= gameState.maxHearts) {
-    for (let i = 0; i < gameState.maxHearts; i++) {
-      heartsContainer.appendChild(createHeartSVG("full"));
-    }
-    return;
-  }
-  const halfHeart = currentHearts % 1 === 0.5;
-
   for (let i = 0; i < hearts; i++) {
     heartsContainer.appendChild(createHeartSVG("full"));
   }
-  if (halfHeart) {
+}
+
+function addHeart() {
+  const heartsContainer = document.querySelector(".hearts");
+  if (gameState.currentHearts % 1 === 0) {
+    heartsContainer.appendChild(createHeartSVG("full"));
+  } else {
+    heartsContainer.lastElementChild.remove();
+    heartsContainer.appendChild(createHeartSVG("full"));
     heartsContainer.appendChild(createHeartSVG("half"));
+  }
+}
+
+function addHalfHeart() {
+  const heartsContainer = document.querySelector(".hearts");
+  if (gameState.currentHearts % 1 === 0) {
+    heartsContainer.appendChild(createHeartSVG("half"));
+  } else {
+    heartsContainer.lastElementChild.remove();
+    heartsContainer.appendChild(createHeartSVG("full"));
+  }
+}
+
+function removeHeart() {
+  const heartsContainer = document.querySelector(".hearts");
+  if (gameState.currentHearts % 1 === 0) {
+    heartsContainer.lastElementChild.remove();
+  } else {
+    heartsContainer.lastElementChild.remove();
+    heartsContainer.lastElementChild.remove();
+    heartsContainer.appendChild(createHeartSVG("half"));
+  }
+}
+
+function removeHalfHeart() {
+  const heartsContainer = document.querySelector(".hearts");
+  if (gameState.currentHearts % 1 === 0) {
+    heartsContainer.lastElementChild.remove();
+    heartsContainer.appendChild(createHeartSVG("half"));
+  } else {
+    heartsContainer.lastElementChild.remove();
   }
 }
 
 function updateScore() {
   if (gameState.highlighted === gameState.target) {
+    addHeart();
     gameState.currentHearts += 1;
-    updateHeartDisplay(gameState.currentHearts);
     gameState.score += 50;
     document.getElementById("score").textContent = gameState.score;
   } else if (Math.abs(gameState.highlighted - gameState.target) === 1) {
+    addHalfHeart();
     gameState.currentHearts += 0.5;
-    updateHeartDisplay(gameState.currentHearts);
     gameState.score += 20;
     document.getElementById("score").textContent = gameState.score;
   } else if (Math.abs(gameState.highlighted - gameState.target) === 2) {
+    removeHalfHeart();
     gameState.currentHearts -= 0.5;
-    updateHeartDisplay(gameState.currentHearts);
   } else if (Math.abs(gameState.highlighted - gameState.target) > 2) {
+    removeHeart();
     gameState.currentHearts -= 1;
-    updateHeartDisplay(gameState.currentHearts);
   }
 }
 
@@ -134,7 +172,6 @@ function resetLeft() {
 
 function animateEndPosition() {
   const landed = document.getElementById(`char-${gameState.highlighted}`);
-  const target = document.getElementById(`char-${gameState.target}`);
 
   document.querySelectorAll('[id*="char"]').forEach((char) => {
     char.classList.remove(
@@ -170,15 +207,25 @@ document.addEventListener("keydown", function (event) {
     return;
   }
   if (event.key === "l" && !movingRight) {
+    if (gameState.startingRight) {
+      gameState.noKeyUp = true;
+      return;
+    }
+    gameState.noKeyUp = false;
     moveRight();
   }
   if (event.key === "h" && !movingLeft) {
+    if (gameState.startingLeft) {
+      gameState.noKeyUp = true;
+      return;
+    }
+    gameState.noKeyUp = false;
     moveLeft();
   }
 });
 
 document.addEventListener("keyup", function (event) {
-  if (gameState.isAnimating) {
+  if (gameState.isAnimating || gameState.noKeyUp) {
     return;
   }
   if (event.key === "l") {
@@ -206,8 +253,6 @@ document.addEventListener("keyup", function (event) {
 window.addEventListener("load", function () {
   initGame();
 });
-
-function addHeart() {}
 
 function createHeartSVG(type) {
   const heartSVG = document.createElement("div");
@@ -295,3 +340,63 @@ const heartTemplates = {
     </svg>
   `,
 };
+
+// LEADERBOARD MODAL
+
+function openLeaderboardModal() {
+  const modal = document.getElementById("leaderboard-modal");
+  modal.classList.add("show");
+  loadLeaderboard();
+}
+
+function closeLeaderboardModal() {
+  const modal = document.getElementById("leaderboard-modal");
+  modal.classList.remove("show");
+}
+
+function loadLeaderboard() {
+  const entriesContainer = document.getElementById("leaderboard-entries");
+
+  const mockData = [
+    { rank: 1, name: "PLAYER1", score: 1250 },
+    { rank: 2, name: "COOLGAMER", score: 1100 },
+    { rank: 3, name: "SPEEDRUN", score: 950 },
+    { rank: 4, name: "LETTERFAN", score: 800 },
+    { rank: 5, name: "QUICKSHOT", score: 750 },
+  ];
+
+  entriesContainer.innerHTML = "";
+
+  mockData.forEach((entry) => {
+    const entryElement = document.createElement("div");
+    entryElement.className = "leaderboard-entry";
+    entryElement.innerHTML = `
+      <span class="rank">${entry.rank}</span>
+      <span class="name">${entry.name}</span>
+      <span class="score">${entry.score}</span>
+    `;
+    entriesContainer.appendChild(entryElement);
+  });
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+  const leaderboardBtn = document.getElementById("leaderboard-btn");
+  const modal = document.getElementById("leaderboard-modal");
+  const closeBtn = document.querySelector(".modal-close");
+  const backdrop = document.querySelector(".modal-backdrop");
+
+  leaderboardBtn.addEventListener("click", function (e) {
+    e.preventDefault();
+    openLeaderboardModal();
+  });
+
+  closeBtn.addEventListener("click", closeLeaderboardModal);
+
+  backdrop.addEventListener("click", closeLeaderboardModal);
+
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && modal.classList.contains("show")) {
+      closeLeaderboardModal();
+    }
+  });
+});

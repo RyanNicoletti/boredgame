@@ -11,7 +11,7 @@
       <header class="header">
         <h1 class="title">LETTERRUN</h1>
         <h1 class="leaderboard-title">
-          <a href="/leaderboard">LEADERBOARD</a>
+          <a href="#" id="leaderboard-btn">LEADERBOARD</a>
         </h1>
       </header>
 
@@ -26,6 +26,25 @@
         <div class="game-text"></div>
       </div>
     </div>
+
+    <div id="leaderboard-modal" class="modal">
+      <div class="modal-backdrop"></div>
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>LEADERBOARD</h2>
+          <button class="modal-close">&times;</button>
+        </div>
+        <div class="leaderboard-container">
+          <div class="leaderboard-headers">
+            <span class="rank-header">RANK</span>
+            <span class="name-header">NAME</span>
+            <span class="score-header">SCORE</span>
+          </div>
+          <div class="leaderboard-entries" id="leaderboard-entries"></div>
+        </div>
+      </div>
+    </div>
+
     <script src="game.js"></script>
   </body>
 </html>
