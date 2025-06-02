@@ -5,7 +5,9 @@ const gameState = {
   maxHearts: 6,
   target: null,
   isAnimating: false,
+  speed: 53,
 };
+const animationDuration = 800;
 let movingRight = false;
 let movingLeft = false;
 
@@ -31,7 +33,7 @@ function moveRight() {
   function animate() {
     if (gameState.highlighted < gameText.length - 1 && movingRight) {
       moveHighlight(gameState.highlighted + 1);
-      setTimeout(animate, 50);
+      setTimeout(animate, gameState.speed);
     }
   }
   animate();
@@ -43,7 +45,7 @@ function moveLeft() {
   function animate() {
     if (gameState.highlighted > 0 && movingLeft) {
       moveHighlight(gameState.highlighted - 1);
-      setTimeout(animate, 50);
+      setTimeout(animate, gameState.speed);
     }
   }
   animate();
@@ -62,6 +64,7 @@ function generateGameString(length = 30) {
 function resetPosition(index) {
   moveHighlight(index);
   gameState.highlighted = index;
+  gameState.speed -= 2;
 }
 
 function setTarget(index) {
@@ -72,20 +75,26 @@ function setTarget(index) {
 
 function initGame() {
   gameText = generateGameString();
-  updateHeartDisplay();
+  updateHeartDisplay(gameState.currentHearts);
   createCharacterSpans();
   resetPosition(0);
   setTarget(gameText.length - (Math.floor(Math.random() * 4) + 7));
 }
 
-function updateHeartDisplay() {
+function updateHeartDisplay(currentHearts) {
   const heartsContainer = document.querySelector(".hearts");
   heartsContainer.innerHTML = "";
 
-  const numHearts = gameState.currentHearts;
-  const halfHeart = gameState.currentHearts % 1 === 0.5;
+  const hearts = Math.floor(currentHearts);
+  if (hearts >= gameState.maxHearts) {
+    for (let i = 0; i < gameState.maxHearts; i++) {
+      heartsContainer.appendChild(createHeartSVG("full"));
+    }
+    return;
+  }
+  const halfHeart = currentHearts % 1 === 0.5;
 
-  for (let i = 0; i < numHearts; i++) {
+  for (let i = 0; i < hearts; i++) {
     heartsContainer.appendChild(createHeartSVG("full"));
   }
   if (halfHeart) {
@@ -96,20 +105,20 @@ function updateHeartDisplay() {
 function updateScore() {
   if (gameState.highlighted === gameState.target) {
     gameState.currentHearts += 1;
-    updateHeartDisplay();
+    updateHeartDisplay(gameState.currentHearts);
     gameState.score += 50;
     document.getElementById("score").textContent = gameState.score;
   } else if (Math.abs(gameState.highlighted - gameState.target) === 1) {
     gameState.currentHearts += 0.5;
-    updateHeartDisplay();
+    updateHeartDisplay(gameState.currentHearts);
     gameState.score += 20;
     document.getElementById("score").textContent = gameState.score;
   } else if (Math.abs(gameState.highlighted - gameState.target) === 2) {
     gameState.currentHearts -= 0.5;
-    updateHeartDisplay();
+    updateHeartDisplay(gameState.currentHearts);
   } else if (Math.abs(gameState.highlighted - gameState.target) > 2) {
     gameState.currentHearts -= 1;
-    updateHeartDisplay();
+    updateHeartDisplay(gameState.currentHearts);
   }
 }
 
@@ -138,7 +147,6 @@ function animateEndPosition() {
 
   let animationClass = "";
   const distance = Math.abs(gameState.highlighted - gameState.target);
-  const animationDuration = 1000;
 
   if (distance === 0) {
     animationClass = "char-perfect";
@@ -181,7 +189,7 @@ document.addEventListener("keyup", function (event) {
       updateScore();
       resetRight();
       gameState.isAnimating = false;
-    }, 1200);
+    }, animationDuration + 200);
   }
   if (event.key === "h") {
     movingLeft = false;
@@ -191,7 +199,7 @@ document.addEventListener("keyup", function (event) {
       updateScore();
       resetLeft();
       gameState.isAnimating = false;
-    }, 1200);
+    }, animationDuration + 200);
   }
 });
 

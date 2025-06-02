@@ -1,3 +1,8 @@
+@font-face {
+  font-family: "silkscreen";
+  src: url("fonts/silkscreen/slkscr.ttf");
+}
+
 .highlighted {
   background-color: lightgreen;
 }
@@ -9,6 +14,8 @@
 [id*="char"] {
   padding-right: 0.5rem;
   padding-left: 0.5rem;
+  display: inline-block;
+  transition: none;
 }
 
 .container {
@@ -64,6 +71,8 @@
   position: absolute;
   top: 1rem;
   right: 5rem;
+  font-family: "silkscreen", sans-serif;
+  font-size: 1.7rem;
 }
 
 .game-text {
@@ -73,98 +82,122 @@
 @keyframes perfect-bounce {
   0% {
     transform: translateY(0) scale(1);
-    background-color: rgba(0, 255, 0, 0.3);
+    background-color: #00ff00;
+    box-shadow: 0 0 10px #00ff00;
   }
   25% {
     transform: translateY(-15px) scale(1.1);
-    background-color: rgba(0, 255, 0, 0.5);
+    background-color: #00ff00;
+    box-shadow: 0 0 20px #00ff00;
   }
   50% {
     transform: translateY(-8px) scale(1.05);
-    background-color: rgba(0, 255, 0, 0.7);
+    background-color: #00ff00;
+    box-shadow: 0 0 15px #00ff00;
   }
   75% {
     transform: translateY(-12px) scale(1.08);
-    background-color: rgba(0, 255, 0, 0.4);
+    background-color: #00ff00;
+    box-shadow: 0 0 18px #00ff00;
   }
   100% {
     transform: translateY(0) scale(1);
     background-color: transparent;
+    box-shadow: none;
   }
 }
 
 @keyframes close-bounce {
   0% {
     transform: translateY(0) scale(1);
-    background-color: rgba(0, 150, 255, 0.3);
+    background-color: #0096ff;
+    box-shadow: 0 0 10px #0096ff;
   }
   50% {
     transform: translateY(-8px) scale(1.05);
-    background-color: rgba(0, 150, 255, 0.5);
+    background-color: #0096ff;
+    box-shadow: 0 0 15px #0096ff;
   }
   100% {
     transform: translateY(0) scale(1);
     background-color: transparent;
+    box-shadow: none;
   }
 }
 
 @keyframes yellow-slide {
   0% {
     transform: translateY(0);
-    background-color: rgba(255, 200, 0, 0.6);
+    background-color: #ffc800;
+    box-shadow: 0 0 10px #ffc800;
   }
   50% {
     transform: translateY(8px);
-    background-color: rgba(255, 200, 0, 0.8);
+    background-color: #ffc800;
+    box-shadow: 0 0 15px #ffc800;
   }
   100% {
     transform: translateY(0);
     background-color: transparent;
+    box-shadow: none;
   }
 }
 
 @keyframes red-shake {
   0% {
     transform: translateX(0);
-    background-color: rgba(255, 0, 0, 0.6);
+    background-color: #ff0000;
+    box-shadow: 0 0 10px #ff0000;
   }
   25% {
     transform: translateX(-4px);
-    background-color: rgba(255, 0, 0, 0.8);
+    background-color: #ff0000;
+    box-shadow: 0 0 15px #ff0000;
   }
   50% {
     transform: translateX(4px);
-    background-color: rgba(255, 0, 0, 0.9);
+    background-color: #ff0000;
+    box-shadow: 0 0 20px #ff0000;
   }
   75% {
     transform: translateX(-3px);
-    background-color: rgba(255, 0, 0, 0.7);
+    background-color: #ff0000;
+    box-shadow: 0 0 15px #ff0000;
   }
   100% {
     transform: translateX(0);
     background-color: transparent;
+    box-shadow: none;
   }
 }
 
 .char-perfect {
   animation: perfect-bounce 0.8s ease-in-out;
+  position: relative;
+  z-index: 10;
 }
 
 .char-close {
   animation: close-bounce 0.5s ease-in-out;
+  position: relative;
+  z-index: 10;
 }
 
 .char-yellow {
   animation: yellow-slide 0.6s ease-in-out;
+  position: relative;
+  z-index: 10;
 }
 
 .char-red-shake {
   animation: red-shake 0.5s ease-in-out;
+  position: relative;
+  z-index: 10;
 }
 
-.char-perfect,
-.char-close,
-.char-yellow,
-.char-red-shake {
-  background-color: transparent !important;
+.char-perfect.highlighted,
+.char-close.highlighted,
+.char-yellow.highlighted,
+.char-red-shake.highlighted {
+  background-color: inherit;
 }
