@@ -1,6 +1,0 @@
-{
-  "name": "letterrun-worker",
-  "main": "src/index.js",
-  "compatibility_date": "2025-06-02",
-  "assets": { "directory": "./public", "binding": "ASSETS" }
-}
