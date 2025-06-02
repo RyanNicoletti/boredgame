@@ -99,6 +99,12 @@ function updateHeartDisplay(hearts) {
 }
 
 function addHeart() {
+  if (gameState.currentHearts === 5.5) {
+    addHalfHeart();
+    return;
+  } else if (gameState.currentHearts === gameState.maxHearts) {
+    return;
+  }
   const heartsContainer = document.querySelector(".hearts");
   if (gameState.currentHearts % 1 === 0) {
     heartsContainer.appendChild(createHeartSVG("full"));
@@ -107,9 +113,13 @@ function addHeart() {
     heartsContainer.appendChild(createHeartSVG("full"));
     heartsContainer.appendChild(createHeartSVG("half"));
   }
+  gameState.currentHearts += 1;
 }
 
 function addHalfHeart() {
+  if (gameState.currentHearts === gameState.maxHearts) {
+    return;
+  }
   const heartsContainer = document.querySelector(".hearts");
   if (gameState.currentHearts % 1 === 0) {
     heartsContainer.appendChild(createHeartSVG("half"));
@@ -117,6 +127,7 @@ function addHalfHeart() {
     heartsContainer.lastElementChild.remove();
     heartsContainer.appendChild(createHeartSVG("full"));
   }
+  gameState.currentHearts += 0.5;
 }
 
 function removeHeart() {
@@ -128,6 +139,10 @@ function removeHeart() {
     heartsContainer.lastElementChild.remove();
     heartsContainer.appendChild(createHeartSVG("half"));
   }
+  gameState.currentHearts -= 1;
+  if (gameState.currentHearts === 0) {
+    gameOver();
+  }
 }
 
 function removeHalfHeart() {
@@ -138,25 +153,25 @@ function removeHalfHeart() {
   } else {
     heartsContainer.lastElementChild.remove();
   }
+  gameState.currentHearts -= 0.5;
+  if (gameState.currentHearts === 0) {
+    gameOver();
+  }
 }
 
 function updateScore() {
   if (gameState.highlighted === gameState.target) {
     addHeart();
-    gameState.currentHearts += 1;
     gameState.score += 50;
     document.getElementById("score").textContent = gameState.score;
   } else if (Math.abs(gameState.highlighted - gameState.target) === 1) {
     addHalfHeart();
-    gameState.currentHearts += 0.5;
     gameState.score += 20;
     document.getElementById("score").textContent = gameState.score;
   } else if (Math.abs(gameState.highlighted - gameState.target) === 2) {
     removeHalfHeart();
-    gameState.currentHearts -= 0.5;
   } else if (Math.abs(gameState.highlighted - gameState.target) > 2) {
     removeHeart();
-    gameState.currentHearts -= 1;
   }
 }
 
@@ -201,6 +216,8 @@ function animateEndPosition() {
     landed.classList.remove(animationClass);
   }, animationDuration);
 }
+
+function gameOver() {}
 
 document.addEventListener("keydown", function (event) {
   if (gameState.isAnimating) {
