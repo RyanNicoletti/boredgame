@@ -1,4 +1,5 @@
 import { createHeartSVG } from "./hearts.js";
+import { checkIfHighScore } from "./checkScore.js";
 
 const initialGameState = {
   highlighted: 0,
@@ -236,7 +237,17 @@ function closeGameOverModal() {
   gameOverModal.classList.remove("show");
 }
 
-function gameOver() {
+async function gameOver() {
+  const isHighScore = await checkIfHighScore(gameState.score);
+  const highScoreDisplay = document.querySelector(".high-score");
+  const notHighScoreDisplay = document.querySelector(".not-high-score");
+  if (isHighScore) {
+    highScoreDisplay.classList.add("show");
+    notHighScoreDisplay.classList.remove("show");
+  } else {
+    highScoreDisplay.classList.remove("show");
+    notHighScoreDisplay.classList.add("show");
+  }
   openGameOverModal();
 }
 
@@ -299,9 +310,9 @@ function setupEventListeners() {
   const modal = document.getElementById("leaderboard-modal");
   const closeBtn = document.querySelectorAll(".modal-close");
   const backdrop = document.querySelectorAll(".modal-backdrop");
-  const leaderboardForm = document.querySelector(".leaderboard-form");
+  const leaderboardForm = document.querySelector(".gameover-form");
 
-  const restartGameBtn = document.querySelector(".restart-btn");
+  const restartGameBtn = document.querySelector(".restart-game-btn");
 
   restartGameBtn.addEventListener("click", function (e) {
     e.preventDefault();

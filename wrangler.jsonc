@@ -6,5 +6,11 @@
   "assets": {
     "directory": "./public",
     "binding": "ASSETS"
-  }
+  },
+  "kv_namespaces": [
+    {
+      "binding": "LEADERBOARD",
+      "id": "329373020a384826bb427a0c3709ece2"
+    }
+  ]
 }

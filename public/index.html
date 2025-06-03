@@ -55,14 +55,21 @@
           <h2>GAMEOVER</h2>
           <button class="modal-close">&times;</button>
         </div>
-        <div class="gameover-container">
-          <div>New High Score!</div>
-          <form class="leaderboard-form" method="post">
-            <label for="initials">Enter your initials</label>
-            <input type="text" id="initials" name="initials" />
-            <input type="submit" value="Submit" />
-          </form>
-          <button class="restart-btn">Play Again</button>
+        <div class="score-container">
+          <div class="not-high-score">
+            Score:
+            <div id="player-score"></div>
+          </div>
+          <!-- prettier-ignore -->
+          <div class="high-score">
+            NEW HIGH SCORE: <div id="player-score"></div>
+            <form class="gameover-form">
+              <label for="initials">ADD YOUR INITIALS</label>
+              <input type="text" id="initials" name="initials" />
+              <input type="submit" value="Submit"/>
+            </form>
+          </div>
+          <button class="restart-game-btn">Play again!</button>
         </div>
       </div>
     </div>
