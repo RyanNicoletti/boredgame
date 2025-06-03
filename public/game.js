@@ -88,6 +88,7 @@ function setTarget(index) {
 
 function initGame() {
   Object.assign(gameState, initialGameState);
+  document.getElementById("score").textContent = gameState.score;
   gameText = generateGameString();
   updateHeartDisplay(gameState.currentHearts);
   createCharacterSpans();
@@ -275,6 +276,19 @@ function loadLeaderboard() {
   });
 }
 
+async function submitScore() {
+  const formData = new FormData(leaderboardForm);
+  try {
+    const response = await fetch("/api/postScore", {
+      method: "POST",
+      body: formData,
+    });
+    console.log(await response.json());
+  } catch (e) {
+    console.log(e);
+  }
+}
+
 document.addEventListener("DOMContentLoaded", function () {
   initGame();
   setupEventListeners();
@@ -285,6 +299,7 @@ function setupEventListeners() {
   const modal = document.getElementById("leaderboard-modal");
   const closeBtn = document.querySelectorAll(".modal-close");
   const backdrop = document.querySelectorAll(".modal-backdrop");
+  const leaderboardForm = document.querySelector(".leaderboard-form");
 
   const restartGameBtn = document.querySelector(".restart-btn");
 
@@ -311,6 +326,11 @@ function setupEventListeners() {
     if (e.key === "Escape" && modal.classList.contains("show")) {
       closeLeaderboardModal();
     }
+  });
+
+  leaderboardForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+    submitScore();
   });
 
   document.addEventListener("keydown", function (event) {

@@ -56,8 +56,12 @@
           <button class="modal-close">&times;</button>
         </div>
         <div class="gameover-container">
-          <div>New High Score! Enter Your Initials</div>
-          <form></form>
+          <div>New High Score!</div>
+          <form class="leaderboard-form" method="post">
+            <label for="initials">Enter your initials</label>
+            <input type="text" id="initials" name="initials" />
+            <input type="submit" value="Submit" />
+          </form>
           <button class="restart-btn">Play Again</button>
         </div>
       </div>
