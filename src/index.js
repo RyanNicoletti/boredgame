@@ -4,7 +4,7 @@ export default {
 
     if (url.pathname.startsWith("/api/")) {
       switch (url.pathname) {
-        case "/api/getgetScores":
+        case "/api/getScores":
           const response = await fetchScores(env);
           return response;
         default:
