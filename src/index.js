@@ -18,10 +18,16 @@ export default {
 
 async function fetchScores(env) {
   try {
-    const scores = await env.LEADERBOARD.get("scores");
-    console.log("SCORES: ", scores);
-    return new Response({ scores: scores });
+    const high_scores = await env.LEADERBOARD.get("high_scores", "json");
+    console.log("SCORES: ", high_scores);
+    return new Response(JSON.stringify({ high_scores: high_scores || [] }), {
+      headers: { "Content-Type": "application/json" },
+    });
   } catch (e) {
-    return new Response(e.message, { status: 500 });
+    console.error("Error fetching scores:", e);
+    return new Response(JSON.stringify({ error: e.message }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
   }
 }
