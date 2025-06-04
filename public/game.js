@@ -1,22 +1,32 @@
 import { createHeartSVG } from "./hearts.js";
 import { checkIfHighScore } from "./checkScore.js";
 
+const GAME_STATES = {
+  IDLE: "idle",
+  MOVING_RIGHT: "moving_right",
+  MOVING_LEFT: "moving_left",
+  ANIMATING: "animating",
+  GAME_OVER: "game_over",
+};
+
+const START_POSITIONS = {
+  LEFT: "left",
+  RIGHT: "right",
+};
+
 const initialGameState = {
   highlighted: 0,
   score: 0,
   currentHearts: 3,
   maxHearts: 6,
   target: null,
-  isAnimating: false,
   speed: 53,
-  startingRight: false,
-  startingLeft: false,
-  noKeyUp: false,
+  state: GAME_STATES.IDLE,
+  startPosition: START_POSITIONS.LEFT,
 };
+
 const gameState = {};
 const animationDuration = 800;
-let movingRight = false;
-let movingLeft = false;
 
 let gameText = document.querySelector(".game-text").textContent;
 const gameTextElement = document.querySelector(".game-text");
@@ -35,10 +45,13 @@ function moveHighlight(newIndex) {
 }
 
 function moveRight() {
-  movingRight = true;
+  gameState.state = GAME_STATES.MOVING_RIGHT;
 
   function animate() {
-    if (gameState.highlighted < gameText.length - 1 && movingRight) {
+    if (
+      gameState.highlighted < gameText.length - 1 &&
+      gameState.state === GAME_STATES.MOVING_RIGHT
+    ) {
       moveHighlight(gameState.highlighted + 1);
       setTimeout(animate, gameState.speed);
     }
@@ -47,10 +60,13 @@ function moveRight() {
 }
 
 function moveLeft() {
-  movingLeft = true;
+  gameState.state = GAME_STATES.MOVING_LEFT;
 
   function animate() {
-    if (gameState.highlighted > 0 && movingLeft) {
+    if (
+      gameState.highlighted > 0 &&
+      gameState.state === GAME_STATES.MOVING_LEFT
+    ) {
       moveHighlight(gameState.highlighted - 1);
       setTimeout(animate, gameState.speed);
     }
@@ -70,15 +86,14 @@ function generateGameString(length = 30) {
 
 function resetPosition(index) {
   if (index === 0) {
-    gameState.startingLeft = true;
-    gameState.startingRight = false;
+    gameState.startPosition = START_POSITIONS.LEFT;
   } else {
-    gameState.startingLeft = false;
-    gameState.startingRight = true;
+    gameState.startPosition = START_POSITIONS.RIGHT;
   }
   moveHighlight(index);
   gameState.highlighted = index;
-  gameState.speed -= 2;
+  gameState.speed -= 1;
+  gameState.state = GAME_STATES.IDLE;
 }
 
 function setTarget(index) {
@@ -229,16 +244,20 @@ function animateEndPosition() {
 
 function openGameOverModal() {
   const gameOverModal = document.getElementById("gameover-modal");
+  const highScore = document.getElementById("player-high-score");
+  const regularScore = document.getElementById("player-high-score");
   gameOverModal.classList.add("show");
+  highScore.textContent = gameState.score;
+  regularScore.textContent = gameState.score;
 }
 
 function closeGameOverModal() {
   const gameOverModal = document.getElementById("gameover-modal");
   gameOverModal.classList.remove("show");
-  initGame();
 }
 
 async function gameOver() {
+  gameState.state = GAME_STATES.GAME_OVER;
   const isHighScore = await checkIfHighScore(gameState.score);
   const highScoreDisplay = document.querySelector(".high-score");
   const notHighScoreDisplay = document.querySelector(".not-high-score");
@@ -313,7 +332,6 @@ function setupEventListeners() {
   const leaderboardClose = document.querySelector(".leaderboard-modal-close");
   const leadberboardBackdrop = document.querySelector(".leaderboard-backdrop");
   const leaderboardForm = document.querySelector(".gameover-form");
-
   const restartGameBtn = document.querySelector(".restart-game-btn");
 
   restartGameBtn.addEventListener("click", function (e) {
@@ -327,9 +345,11 @@ function setupEventListeners() {
     openLeaderboardModal();
   });
 
-  gameOverClose.addEventListener("click", closeGameOverModal);
+  gameOverClose.addEventListener("click", function () {
+    closeGameOverModal();
+    initGame();
+  });
   leaderboardClose.addEventListener("click", closeLeaderboardModal);
-
   leadberboardBackdrop.addEventListener("click", closeLeaderboardModal);
 
   document.addEventListener("keydown", function (e) {
@@ -344,53 +364,48 @@ function setupEventListeners() {
   });
 
   document.addEventListener("keydown", function (event) {
-    if (gameState.isAnimating) {
+    if (gameState.state !== GAME_STATES.IDLE) {
       return;
     }
-    if (event.key === "l" && !movingRight) {
-      if (movingLeft) return;
-      if (gameState.startingRight) {
-        gameState.noKeyUp = true;
+
+    if (event.key === "l") {
+      if (gameState.startPosition === START_POSITIONS.RIGHT) {
         return;
       }
-      gameState.noKeyUp = false;
       moveRight();
     }
-    if (event.key === "h" && !movingLeft) {
-      if (movingRight) return;
-      if (gameState.startingLeft) {
-        gameState.noKeyUp = true;
+
+    if (event.key === "h") {
+      if (gameState.startPosition === START_POSITIONS.LEFT) {
         return;
       }
-      gameState.noKeyUp = false;
       moveLeft();
     }
   });
 
   document.addEventListener("keyup", function (event) {
-    if (gameState.isAnimating || gameState.noKeyUp) {
+    if (
+      gameState.state === GAME_STATES.ANIMATING ||
+      gameState.state === GAME_STATES.GAME_OVER
+    ) {
       return;
     }
-    if (event.key === "l") {
-      if (movingLeft) return;
-      movingRight = false;
-      gameState.isAnimating = true;
+
+    if (event.key === "l" && gameState.state === GAME_STATES.MOVING_RIGHT) {
+      gameState.state = GAME_STATES.ANIMATING;
       animateEndPosition();
       setTimeout(() => {
         updateScore();
         resetRight();
-        gameState.isAnimating = false;
       }, animationDuration + 200);
     }
-    if (event.key === "h") {
-      if (movingRight) return;
-      movingLeft = false;
-      gameState.isAnimating = true;
+
+    if (event.key === "h" && gameState.state === GAME_STATES.MOVING_LEFT) {
+      gameState.state = GAME_STATES.ANIMATING;
       animateEndPosition();
       setTimeout(() => {
         updateScore();
         resetLeft();
-        gameState.isAnimating = false;
       }, animationDuration + 200);
     }
   });
