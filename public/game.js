@@ -235,6 +235,7 @@ function openGameOverModal() {
 function closeGameOverModal() {
   const gameOverModal = document.getElementById("gameover-modal");
   gameOverModal.classList.remove("show");
+  initGame();
 }
 
 async function gameOver() {
@@ -308,8 +309,9 @@ document.addEventListener("DOMContentLoaded", function () {
 function setupEventListeners() {
   const leaderboardBtn = document.getElementById("leaderboard-btn");
   const modal = document.getElementById("leaderboard-modal");
-  const closeBtn = document.querySelectorAll(".modal-close");
-  const backdrop = document.querySelectorAll(".modal-backdrop");
+  const gameOverClose = document.querySelector(".gameover-modal-close");
+  const leaderboardClose = document.querySelector(".leaderboard-modal-close");
+  const leadberboardBackdrop = document.querySelector(".leaderboard-backdrop");
   const leaderboardForm = document.querySelector(".gameover-form");
 
   const restartGameBtn = document.querySelector(".restart-game-btn");
@@ -325,13 +327,10 @@ function setupEventListeners() {
     openLeaderboardModal();
   });
 
-  closeBtn.forEach((btn) => {
-    btn.addEventListener("click", closeLeaderboardModal);
-  });
+  gameOverClose.addEventListener("click", closeGameOverModal);
+  leaderboardClose.addEventListener("click", closeLeaderboardModal);
 
-  backdrop.forEach((el) => {
-    el.addEventListener("click", closeLeaderboardModal);
-  });
+  leadberboardBackdrop.addEventListener("click", closeLeaderboardModal);
 
   document.addEventListener("keydown", function (e) {
     if (e.key === "Escape" && modal.classList.contains("show")) {
@@ -349,6 +348,7 @@ function setupEventListeners() {
       return;
     }
     if (event.key === "l" && !movingRight) {
+      if (movingLeft) return;
       if (gameState.startingRight) {
         gameState.noKeyUp = true;
         return;
@@ -357,6 +357,7 @@ function setupEventListeners() {
       moveRight();
     }
     if (event.key === "h" && !movingLeft) {
+      if (movingRight) return;
       if (gameState.startingLeft) {
         gameState.noKeyUp = true;
         return;
@@ -371,6 +372,7 @@ function setupEventListeners() {
       return;
     }
     if (event.key === "l") {
+      if (movingLeft) return;
       movingRight = false;
       gameState.isAnimating = true;
       animateEndPosition();
@@ -381,6 +383,7 @@ function setupEventListeners() {
       }, animationDuration + 200);
     }
     if (event.key === "h") {
+      if (movingRight) return;
       movingLeft = false;
       gameState.isAnimating = true;
       animateEndPosition();
