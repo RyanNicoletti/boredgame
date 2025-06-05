@@ -5,9 +5,7 @@ export async function checkIfHighScore(score) {
       throw new Error("Failed to get scores from leaderboard");
     }
     const data = await response.json();
-    console.log(data);
     const high_scores = data["high_scores"];
-    console.log(high_scores, high_scores[0]);
     if (high_scores.length < 100) {
       return true;
     }
@@ -19,4 +17,34 @@ export async function checkIfHighScore(score) {
   }
 }
 
-export async function addHighScore(data) {}
+export async function fetchLeaderboard() {
+  try {
+    const response = await fetch("/api/getScores");
+    if (!response.ok) {
+      throw new Error("Failed to get scores from leaderboard");
+    }
+    const data = await response.json();
+    console.log("here", data);
+    return data["high_scores"];
+  } catch (e) {
+    console.log(e, "error fetching scores");
+    return false;
+  }
+}
+
+export async function addHighScore(data) {
+  try {
+    const response = await fetch("api/postScore", {
+      method: "POST",
+      body: JSON.stringify({ data }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    if (!response.ok) {
+      throw new Error(`Something went wrong: ${response.status}`);
+    }
+  } catch (e) {
+    console.log(e);
+  }
+}

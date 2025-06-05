@@ -2,24 +2,23 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
 
-    if (url.pathname.startsWith("/api/")) {
-      switch (url.pathname) {
-        case "/api/getScores":
-          const response = await fetchScores(env);
-          return response;
-        default:
-          console.log(`UNKNOWN PATHNAME: ${url.pathname}`);
-          return new Response("Invalid path.");
-      }
+    if (url.pathname === "/api/getScores") {
+      const response = await getScores(env);
+      return response;
+    } else if (url.pathname === "/api/postScore") {
+      const response = await postScore(request, env);
+      return response;
     }
+
     return env.ASSETS.fetch(request);
   },
 };
 
-async function fetchScores(env) {
+async function getScores(env) {
   try {
     const high_scores = await env.LEADERBOARD.get("high_scores", "json");
-    console.log("SCORES: ", high_scores);
+    console.log("Raw KV data:", high_scores);
+    console.log("Type of high_scores:", typeof high_scores);
     return new Response(JSON.stringify({ high_scores: high_scores || [] }), {
       headers: { "Content-Type": "application/json" },
     });
@@ -30,4 +29,15 @@ async function fetchScores(env) {
       headers: { "Content-Type": "application/json" },
     });
   }
+}
+
+async function postScore(req, env) {
+  const high_scores = await env.LEADERBOARD.put("high_scores", "json");
+  const scoreToAdd = {};
+  scoreToAdd.high_scores.append();
+  const scores = high_scores.map((highScore) => {
+    return highScore.score;
+  });
+  console.log(scores);
+  const res = await req.json();
 }

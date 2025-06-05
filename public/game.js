@@ -1,5 +1,9 @@
 import { createHeartSVG } from "./hearts.js";
-import { checkIfHighScore, addHighScore } from "./scoreService.js";
+import {
+  checkIfHighScore,
+  addHighScore,
+  fetchLeaderboard,
+} from "./scoreService.js";
 
 const GAME_STATES = {
   IDLE: "idle",
@@ -282,25 +286,18 @@ function closeLeaderboardModal() {
   modal.classList.remove("show");
 }
 
-function loadLeaderboard() {
+async function loadLeaderboard() {
   const entriesContainer = document.getElementById("leaderboard-entries");
 
-  const mockData = [
-    { rank: 1, name: "PLAYER1", score: 1250 },
-    { rank: 2, name: "COOLGAMER", score: 1100 },
-    { rank: 3, name: "SPEEDRUN", score: 950 },
-    { rank: 4, name: "LETTERFAN", score: 800 },
-    { rank: 5, name: "QUICKSHOT", score: 750 },
-  ];
-
+  const entries = await fetchLeaderboard();
   entriesContainer.innerHTML = "";
 
-  mockData.forEach((entry) => {
+  entries.forEach((entry) => {
     const entryElement = document.createElement("div");
     entryElement.className = "leaderboard-entry";
     entryElement.innerHTML = `
       <span class="rank">${entry.rank}</span>
-      <span class="name">${entry.name}</span>
+      <span class="initials">${entry.initials}</span>
       <span class="score">${entry.score}</span>
     `;
     entriesContainer.appendChild(entryElement);
@@ -337,9 +334,10 @@ function setupEventListeners() {
   gameOverForm.addEventListener("submit", async function (e) {
     e.preventDefault();
     const formData = new FormData(gameOverForm);
+    console.log(formData);
     try {
       addHighScore({
-        initials: formData.initials.toUpperCase(),
+        initials: formData.get("initials").toUpperCase(),
         score: gameState.score,
         timestamp: Date.now(),
       });
