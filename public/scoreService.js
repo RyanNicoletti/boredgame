@@ -18,3 +18,5 @@ export async function checkIfHighScore(score) {
     return false;
   }
 }
+
+export async function addHighScore(data) {}

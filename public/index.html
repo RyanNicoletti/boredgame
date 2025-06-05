@@ -61,12 +61,12 @@
             <div id="player-score"></div>
           </div>
           <!-- prettier-ignore -->
-          <div class="high-score">
-            NEW HIGH SCORE: <span id="player-high-score"></span>
+          <div class="high-score" id="high-score-container">
+            <div id="new-high-score">NEW HIGH SCORE: <span id="player-high-score"></span></div>
             <form class="gameover-form">
               <label for="initials">ADD YOUR INITIALS</label>
-              <input type="text" id="initials" name="initials" />
-              <input type="submit" value="Submit"/>
+              <input type="text" id="initials" name="initials" maxlength="3" />
+              <input class="gameover-submit-btn" type="submit" value="Submit"/>
             </form>
           </div>
           <button class="restart-game-btn">Play again!</button>

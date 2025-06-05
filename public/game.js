@@ -1,5 +1,5 @@
 import { createHeartSVG } from "./hearts.js";
-import { checkIfHighScore } from "./checkScore.js";
+import { checkIfHighScore, addHighScore } from "./scoreService.js";
 
 const GAME_STATES = {
   IDLE: "idle",
@@ -331,8 +331,23 @@ function setupEventListeners() {
   const gameOverClose = document.querySelector(".gameover-modal-close");
   const leaderboardClose = document.querySelector(".leaderboard-modal-close");
   const leadberboardBackdrop = document.querySelector(".leaderboard-backdrop");
-  const leaderboardForm = document.querySelector(".gameover-form");
   const restartGameBtn = document.querySelector(".restart-game-btn");
+  const gameOverForm = document.querySelector(".gameover-form");
+
+  gameOverForm.addEventListener("submit", async function (e) {
+    e.preventDefault();
+    const formData = new FormData(gameOverForm);
+    try {
+      addHighScore({
+        initials: formData.initials.toUpperCase(),
+        score: gameState.score,
+        timestamp: Date.now(),
+      });
+      closeGameOverModal();
+    } catch (e) {
+      console.log(e);
+    }
+  });
 
   restartGameBtn.addEventListener("click", function (e) {
     e.preventDefault();
@@ -356,11 +371,6 @@ function setupEventListeners() {
     if (e.key === "Escape" && modal.classList.contains("show")) {
       closeLeaderboardModal();
     }
-  });
-
-  leaderboardForm.addEventListener("submit", (event) => {
-    event.preventDefault();
-    submitScore();
   });
 
   document.addEventListener("keydown", function (event) {
