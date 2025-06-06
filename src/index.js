@@ -17,8 +17,6 @@ export default {
 async function getScores(env) {
   try {
     const high_scores = await env.LEADERBOARD.get("high_scores", "json");
-    console.log("Raw KV data:", high_scores);
-    console.log("Type of high_scores:", typeof high_scores);
     return new Response(JSON.stringify({ high_scores: high_scores || [] }), {
       headers: { "Content-Type": "application/json" },
     });
@@ -31,13 +29,20 @@ async function getScores(env) {
   }
 }
 
-async function postScore(req, env) {
-  const high_scores = await env.LEADERBOARD.put("high_scores", "json");
-  const scoreToAdd = {};
-  scoreToAdd.high_scores.append();
-  const scores = high_scores.map((highScore) => {
-    return highScore.score;
+async function postScore(request, env) {
+  let high_scores = await env.LEADERBOARD.get("high_scores");
+  high_scores = JSON.parse(high_scores);
+  const res = await request.json();
+  const player = res.data;
+  const scoreToAdd = { initials: player.initials, score: player.score };
+  high_scores.push(scoreToAdd);
+  high_scores.sort((a, b) => b.score - a.score);
+  const rankedScores = high_scores.map((score, index) => ({
+    ...score,
+    rank: index + 1,
+  }));
+  await env.LEADERBOARD.put("high_scores", JSON.stringify(rankedScores));
+  return new Response(JSON.stringify({ success: true }), {
+    headers: { "Content-Type": "application/json" },
   });
-  console.log(scores);
-  const res = await req.json();
 }

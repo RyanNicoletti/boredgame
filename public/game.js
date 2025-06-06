@@ -192,16 +192,17 @@ function updateScore() {
   if (gameState.highlighted === gameState.target) {
     addHeart();
     gameState.score += 50;
-    document.getElementById("score").textContent = gameState.score;
   } else if (Math.abs(gameState.highlighted - gameState.target) === 1) {
     addHalfHeart();
     gameState.score += 20;
-    document.getElementById("score").textContent = gameState.score;
   } else if (Math.abs(gameState.highlighted - gameState.target) === 2) {
     removeHalfHeart();
+    gameState.score -= 5;
   } else if (Math.abs(gameState.highlighted - gameState.target) > 2) {
     removeHeart();
+    gameState.score -= 10;
   }
+  document.getElementById("score").textContent = gameState.score;
 }
 
 function resetRight() {
@@ -304,19 +305,6 @@ async function loadLeaderboard() {
   });
 }
 
-async function submitScore() {
-  const formData = new FormData(leaderboardForm);
-  try {
-    const response = await fetch("/api/postScore", {
-      method: "POST",
-      body: formData,
-    });
-    console.log(await response.json());
-  } catch (e) {
-    console.log(e);
-  }
-}
-
 document.addEventListener("DOMContentLoaded", function () {
   initGame();
   setupEventListeners();
@@ -334,12 +322,10 @@ function setupEventListeners() {
   gameOverForm.addEventListener("submit", async function (e) {
     e.preventDefault();
     const formData = new FormData(gameOverForm);
-    console.log(formData);
     try {
-      addHighScore({
+      await addHighScore({
         initials: formData.get("initials").toUpperCase(),
         score: gameState.score,
-        timestamp: Date.now(),
       });
       closeGameOverModal();
     } catch (e) {

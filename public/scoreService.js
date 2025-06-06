@@ -24,7 +24,6 @@ export async function fetchLeaderboard() {
       throw new Error("Failed to get scores from leaderboard");
     }
     const data = await response.json();
-    console.log("here", data);
     return data["high_scores"];
   } catch (e) {
     console.log(e, "error fetching scores");
@@ -34,7 +33,7 @@ export async function fetchLeaderboard() {
 
 export async function addHighScore(data) {
   try {
-    const response = await fetch("api/postScore", {
+    const response = await fetch("/api/postScore", {
       method: "POST",
       body: JSON.stringify({ data }),
       headers: {
