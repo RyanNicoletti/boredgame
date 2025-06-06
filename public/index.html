@@ -59,17 +59,31 @@
           <div class="not-high-score">
             Score:
             <div id="player-score"></div>
+            <button class="restart-game-btn">Play again!</button>
           </div>
           <!-- prettier-ignore -->
           <div class="high-score" id="high-score-container">
-            <div id="new-high-score">NEW HIGH SCORE: <span id="player-high-score"></span></div>
-            <form class="gameover-form">
-              <label for="initials">ADD YOUR INITIALS</label>
-              <input type="text" id="initials" name="initials" maxlength="3" />
-              <input class="gameover-submit-btn" type="submit" value="Submit"/>
-            </form>
+            <div class="high-score-form-section">
+              <div id="new-high-score">NEW HIGH SCORE: <span id="player-high-score"></span></div>
+              <form class="gameover-form">
+                <label for="initials">ADD YOUR INITIALS</label>
+                <input type="text" id="initials" name="initials" maxlength="3" />
+                <input class="gameover-submit-btn" type="submit" value="Submit"/>
+              </form>
+            </div>
+            <div class="post-submission-section" style="display: none;">
+              <div class="post-submission-title" id="post-submission-title">LEADERBOARD</div>
+              <div class="post-submission-leaderboard">
+                <div class="leaderboard-headers">
+                  <span class="rank-header">RANK</span>
+                  <span class="name-header">NAME</span>
+                  <span class="score-header">SCORE</span>
+                </div>
+                <div class="leaderboard-entries" id="post-submission-entries"></div>
+              </div>
+              <button class="restart-game-btn">Play again!</button>
+            </div>
           </div>
-          <button class="restart-game-btn">Play again!</button>
         </div>
       </div>
     </div>

@@ -35,6 +35,9 @@ const animationDuration = 800;
 let gameText = document.querySelector(".game-text").textContent;
 const gameTextElement = document.querySelector(".game-text");
 
+// Store the newly submitted score for highlighting
+let submittedScore = null;
+
 function createCharacterSpans() {
   gameTextElement.innerHTML = gameText
     .split("")
@@ -110,6 +113,10 @@ function initGame() {
   Object.assign(gameState, initialGameState);
   document.getElementById("score").textContent = gameState.score;
   gameText = generateGameString();
+
+  const heartsContainer = document.querySelector(".hearts");
+  heartsContainer.innerHTML = "";
+
   updateHeartDisplay(gameState.currentHearts);
   createCharacterSpans();
   resetPosition(0);
@@ -250,10 +257,97 @@ function animateEndPosition() {
 function openGameOverModal() {
   const gameOverModal = document.getElementById("gameover-modal");
   const highScore = document.getElementById("player-high-score");
-  const regularScore = document.getElementById("player-high-score");
+  const regularScore = document.getElementById("player-score");
   gameOverModal.classList.add("show");
   highScore.textContent = gameState.score;
   regularScore.textContent = gameState.score;
+
+  resetGameOverModal();
+}
+
+function resetGameOverModal() {
+  const formSection = document.querySelector(".high-score-form-section");
+  const postSubmissionSection = document.querySelector(
+    ".post-submission-section"
+  );
+
+  if (formSection) formSection.style.display = "block";
+  if (postSubmissionSection) postSubmissionSection.style.display = "none";
+
+  const initialsInput = document.getElementById("initials");
+  if (initialsInput) initialsInput.value = "";
+
+  submittedScore = null;
+}
+
+function showPostSubmissionLeaderboard() {
+  const formSection = document.querySelector(".high-score-form-section");
+  const postSubmissionSection = document.querySelector(
+    ".post-submission-section"
+  );
+
+  if (formSection) formSection.style.display = "none";
+  if (postSubmissionSection) postSubmissionSection.style.display = "block";
+
+  const titleElement = document.getElementById("post-submission-title");
+  if (submittedScore && titleElement) {
+    const rankSuffix = getRankSuffix(submittedScore.rank);
+    titleElement.textContent = `YOU RANKED ${submittedScore.rank}${rankSuffix}!`;
+  }
+
+  loadPostSubmissionLeaderboard();
+}
+
+function getRankSuffix(rank) {
+  if (rank % 100 >= 11 && rank % 100 <= 13) {
+    return "th";
+  }
+  switch (rank % 10) {
+    case 1:
+      return "st";
+    case 2:
+      return "nd";
+    case 3:
+      return "rd";
+    default:
+      return "th";
+  }
+}
+
+async function loadPostSubmissionLeaderboard() {
+  const entriesContainer = document.getElementById("post-submission-entries");
+
+  try {
+    const entries = await fetchLeaderboard();
+    entriesContainer.innerHTML = "";
+
+    entries.forEach((entry) => {
+      const entryElement = document.createElement("div");
+      entryElement.className = "leaderboard-entry";
+
+      if (
+        submittedScore &&
+        entry.initials === submittedScore.initials &&
+        entry.score === submittedScore.score &&
+        entry.rank === submittedScore.rank
+      ) {
+        entryElement.classList.add("player-score");
+        setTimeout(() => {
+          entryElement.scrollIntoView({ behavior: "smooth", block: "center" });
+        }, 100);
+      }
+
+      entryElement.innerHTML = `
+        <span class="rank">${entry.rank}</span>
+        <span class="initials">${entry.initials}</span>
+        <span class="score">${entry.score}</span>
+      `;
+      entriesContainer.appendChild(entryElement);
+    });
+  } catch (error) {
+    console.error("Error loading post-submission leaderboard:", error);
+    entriesContainer.innerHTML = "<div>Error loading scores</div>";
+  }
 }
 
 function closeGameOverModal() {
@@ -290,19 +384,26 @@ function closeLeaderboardModal() {
 async function loadLeaderboard() {
   const entriesContainer = document.getElementById("leaderboard-entries");
 
-  const entries = await fetchLeaderboard();
-  entriesContainer.innerHTML = "";
+  try {
+    const entries = await fetchLeaderboard();
+    entriesContainer.innerHTML = "";
 
-  entries.forEach((entry) => {
-    const entryElement = document.createElement("div");
-    entryElement.className = "leaderboard-entry";
-    entryElement.innerHTML = `
-      <span class="rank">${entry.rank}</span>
-      <span class="initials">${entry.initials}</span>
-      <span class="score">${entry.score}</span>
-    `;
-    entriesContainer.appendChild(entryElement);
-  });
+    const top10 = entries.slice(0, 10);
+
+    top10.forEach((entry) => {
+      const entryElement = document.createElement("div");
+      entryElement.className = "leaderboard-entry";
+      entryElement.innerHTML = `
+        <span class="rank">${entry.rank}</span>
+        <span class="initials">${entry.initials}</span>
+        <span class="score">${entry.score}</span>
+      `;
+      entriesContainer.appendChild(entryElement);
+    });
+  } catch (error) {
+    console.error("Error loading leaderboard:", error);
+    entriesContainer.innerHTML = "<div>Error loading scores</div>";
+  }
 }
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -316,27 +417,46 @@ function setupEventListeners() {
   const gameOverClose = document.querySelector(".gameover-modal-close");
   const leaderboardClose = document.querySelector(".leaderboard-modal-close");
   const leadberboardBackdrop = document.querySelector(".leaderboard-backdrop");
-  const restartGameBtn = document.querySelector(".restart-game-btn");
+  const restartGameBtns = document.querySelectorAll(".restart-game-btn");
   const gameOverForm = document.querySelector(".gameover-form");
 
   gameOverForm.addEventListener("submit", async function (e) {
     e.preventDefault();
     const formData = new FormData(gameOverForm);
+    const initials = formData.get("initials").toUpperCase();
+
     try {
       await addHighScore({
-        initials: formData.get("initials").toUpperCase(),
+        initials: initials,
         score: gameState.score,
       });
-      closeGameOverModal();
+
+      const updatedScores = await fetchLeaderboard();
+      const playerEntry = updatedScores.find(
+        (entry) =>
+          entry.initials === initials && entry.score === gameState.score
+      );
+
+      if (playerEntry) {
+        submittedScore = {
+          initials: playerEntry.initials,
+          score: playerEntry.score,
+          rank: playerEntry.rank,
+        };
+      }
+
+      showPostSubmissionLeaderboard();
     } catch (e) {
       console.log(e);
     }
   });
 
-  restartGameBtn.addEventListener("click", function (e) {
-    e.preventDefault();
-    closeGameOverModal();
-    initGame();
+  restartGameBtns.forEach((btn) => {
+    btn.addEventListener("click", function (e) {
+      e.preventDefault();
+      closeGameOverModal();
+      initGame();
+    });
   });
 
   leaderboardBtn.addEventListener("click", function (e) {
@@ -348,6 +468,7 @@ function setupEventListeners() {
     closeGameOverModal();
     initGame();
   });
+
   leaderboardClose.addEventListener("click", closeLeaderboardModal);
   leadberboardBackdrop.addEventListener("click", closeLeaderboardModal);
 
