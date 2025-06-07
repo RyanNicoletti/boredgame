@@ -12,5 +12,15 @@
       "binding": "LEADERBOARD",
       "id": "329373020a384826bb427a0c3709ece2"
     }
+  ],
+  "routes": [
+    {
+      "pattern": "www.letterrun.com",
+      "custom_domain": true
+    },
+    {
+      "pattern": "letterrun.com",
+      "custom_domain": true
+    }
   ]
 }
