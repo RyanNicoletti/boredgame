@@ -30,7 +30,7 @@ async function getScores(env) {
 }
 
 async function postScore(request, env) {
-  let high_scores = await env.LEADERBOARD.get("high_scores");
+  let high_scores = await env.LEADERBOARD.get("high_scores", "json");
   try {
     const res = await request.json();
     const player = res.data;
