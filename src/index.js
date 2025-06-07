@@ -31,18 +31,26 @@ async function getScores(env) {
 
 async function postScore(request, env) {
   let high_scores = await env.LEADERBOARD.get("high_scores");
-  high_scores = JSON.parse(high_scores);
-  const res = await request.json();
-  const player = res.data;
-  const scoreToAdd = { initials: player.initials, score: player.score };
-  high_scores.push(scoreToAdd);
-  high_scores.sort((a, b) => b.score - a.score);
-  const rankedScores = high_scores.map((score, index) => ({
-    ...score,
-    rank: index + 1,
-  }));
-  await env.LEADERBOARD.put("high_scores", JSON.stringify(rankedScores));
-  return new Response(JSON.stringify({ success: true }), {
-    headers: { "Content-Type": "application/json" },
-  });
+  try {
+    high_scores = high_scores ? JSON.parse(high_scores) : [];
+    const res = await request.json();
+    const player = res.data;
+    const scoreToAdd = { initials: player.initials, score: player.score };
+    high_scores.push(scoreToAdd);
+    high_scores.sort((a, b) => b.score - a.score);
+    const rankedScores = high_scores.map((score, index) => ({
+      ...score,
+      rank: index + 1,
+    }));
+    await env.LEADERBOARD.put("high_scores", JSON.stringify(rankedScores));
+    return new Response(JSON.stringify({ success: true }), {
+      headers: { "Content-Type": "application/json" },
+    });
+  } catch (error) {
+    console.error("Error posting score:", error);
+    return new Response(JSON.stringify({ error: "Failed to save score" }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
 }
