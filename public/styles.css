@@ -326,8 +326,12 @@
 }
 
 .leaderboard-entries {
-  max-height: 400px;
+  max-height: 520px;
+}
+
+#post-submission-entries {
   overflow-y: auto;
+  max-height: 300px;
 }
 
 .leaderboard-entry {
