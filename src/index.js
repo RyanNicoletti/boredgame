@@ -2,6 +2,18 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
 
+    if (url.pathname.startsWith("/api/")) {
+      if (!isSameOrigin(request)) {
+        return new Response(JSON.stringify({ error: "Unauthorized request" }), {
+          status: 403,
+          headers: {
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": null,
+          },
+        });
+      }
+    }
+
     if (url.pathname === "/api/getScores") {
       const response = await getScores(env);
       return response;
@@ -13,6 +25,29 @@ export default {
     return env.ASSETS.fetch(request);
   },
 };
+
+function isSameOrigin(request) {
+  const origin = request.headers.get("Origin");
+  const referer = request.header.get("Referer");
+  const allowed = ["letterrun.com", "www.letterrun.com"];
+  if (origin) {
+    try {
+      const originUrl = new URL(origin);
+      return allowed.includes(originUrl.hostname);
+    } catch (e) {
+      return false;
+    }
+  }
+  if (referer) {
+    try {
+      const refererUrl = new URL(referer);
+      return allowedDomains.includes(refererUrl.hostname);
+    } catch (e) {
+      return false;
+    }
+  }
+  return false;
+}
 
 async function getScores(env) {
   try {
