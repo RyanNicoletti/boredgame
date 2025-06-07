@@ -28,7 +28,7 @@ export default {
 
 function isSameOrigin(request) {
   const origin = request.headers.get("Origin");
-  const referer = request.header.get("Referer");
+  const referer = request.headers.get("Referer");
   const allowed = ["letterrun.com", "www.letterrun.com"];
   if (origin) {
     try {
