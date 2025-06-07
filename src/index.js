@@ -32,9 +32,13 @@ async function getScores(env) {
 async function postScore(request, env) {
   let high_scores = await env.LEADERBOARD.get("high_scores");
   try {
-    high_scores = high_scores ? JSON.parse(high_scores) : [];
     const res = await request.json();
     const player = res.data;
+    high_scores.forEach(async (score) => {
+      if (score.initials === player.initials) {
+        await env.LEADERBOARD.delete(score.initials);
+      }
+    });
     const scoreToAdd = { initials: player.initials, score: player.score };
     high_scores.push(scoreToAdd);
     high_scores.sort((a, b) => b.score - a.score);
