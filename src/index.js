@@ -34,9 +34,9 @@ async function postScore(request, env) {
   try {
     const res = await request.json();
     const player = res.data;
-    high_scores.forEach(async (score) => {
+    high_scores.forEach(async (score, index) => {
       if (score.initials === player.initials) {
-        await env.LEADERBOARD.delete(score.initials);
+        high_scores.splice(index, 1);
       }
     });
     const scoreToAdd = { initials: player.initials, score: player.score };
