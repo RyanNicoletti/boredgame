@@ -265,21 +265,6 @@ function openGameOverModal() {
   resetGameOverModal();
 }
 
-function resetGameOverModal() {
-  const formSection = document.querySelector(".high-score-form-section");
-  const postSubmissionSection = document.querySelector(
-    ".post-submission-section"
-  );
-
-  if (formSection) formSection.style.display = "block";
-  if (postSubmissionSection) postSubmissionSection.style.display = "none";
-
-  const initialsInput = document.getElementById("initials");
-  if (initialsInput) initialsInput.value = "";
-
-  submittedScore = null;
-}
-
 function showPostSubmissionLeaderboard() {
   const formSection = document.querySelector(".high-score-form-section");
   const postSubmissionSection = document.querySelector(
@@ -411,6 +396,39 @@ document.addEventListener("DOMContentLoaded", function () {
   setupEventListeners();
 });
 
+function showScoreRejectionMessage(existingScore, submittedScore) {
+  document.getElementById("existing-score").textContent = existingScore;
+
+  document.querySelector(".gameover-form").style.display = "none";
+  document.getElementById("score-rejection-message").style.display = "block";
+}
+
+function showErrorMessage(message) {
+  document.getElementById("error-text").textContent = message;
+
+  document.querySelector(".gameover-form").style.display = "none";
+  document.getElementById("error-message").style.display = "block";
+}
+
+function resetGameOverModal() {
+  const formSection = document.querySelector(".high-score-form-section");
+  const postSubmissionSection = document.querySelector(
+    ".post-submission-section"
+  );
+
+  if (formSection) formSection.style.display = "block";
+  if (postSubmissionSection) postSubmissionSection.style.display = "none";
+
+  const initialsInput = document.getElementById("initials");
+  if (initialsInput) initialsInput.value = "";
+
+  document.querySelector(".gameover-form").style.display = "block";
+  document.getElementById("score-rejection-message").style.display = "none";
+  document.getElementById("error-message").style.display = "none";
+
+  submittedScore = null;
+}
+
 function setupEventListeners() {
   const leaderboardBtn = document.getElementById("leaderboard-btn");
   const modal = document.getElementById("leaderboard-modal");
@@ -426,28 +444,45 @@ function setupEventListeners() {
     const initials = formData.get("initials").toUpperCase();
 
     try {
-      await addHighScore({
-        initials: initials,
-        score: gameState.score,
+      const response = await fetch("/api/postScore", {
+        method: "POST",
+        body: JSON.stringify({
+          data: {
+            initials: initials,
+            score: gameState.score,
+          },
+        }),
+        headers: {
+          "Content-Type": "application/json",
+        },
       });
 
-      const updatedScores = await fetchLeaderboard();
-      const playerEntry = updatedScores.find(
-        (entry) =>
-          entry.initials === initials && entry.score === gameState.score
-      );
+      const result = await response.json();
 
-      if (playerEntry) {
-        submittedScore = {
-          initials: playerEntry.initials,
-          score: playerEntry.score,
-          rank: playerEntry.rank,
-        };
+      if (result.success) {
+        const updatedScores = await fetchLeaderboard();
+        const playerEntry = updatedScores.find(
+          (entry) =>
+            entry.initials === initials && entry.score === gameState.score
+        );
+
+        if (playerEntry) {
+          submittedScore = {
+            initials: playerEntry.initials,
+            score: playerEntry.score,
+            rank: playerEntry.rank,
+          };
+        }
+
+        showPostSubmissionLeaderboard();
+      } else if (result.rejected) {
+        showScoreRejectionMessage(result.existingScore, result.submittedScore);
+      } else {
+        showErrorMessage("Failed to submit score. Please try again.");
       }
-
-      showPostSubmissionLeaderboard();
     } catch (e) {
       console.log(e);
+      showErrorMessage("Network error. Please try again.");
     }
   });
 

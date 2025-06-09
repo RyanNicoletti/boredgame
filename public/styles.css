@@ -388,12 +388,14 @@
   flex-direction: column;
   text-align: center;
   gap: 1rem;
-  margin-top: 1.5rem;
+  margin: 1.5rem auto;
   padding: 1.5rem;
   border: 2px solid #ff6600;
   border-radius: 4px;
   background: rgba(255, 102, 0, 0.1);
   box-shadow: 0 0 10px rgba(255, 102, 0, 0.3);
+  max-width: 280px;
+  width: 100%;
 }
 
 .gameover-form label {
@@ -553,4 +555,78 @@
 .restart-game-btn:active {
   transform: translateY(0);
   box-shadow: 0 0 5px rgba(0, 255, 0, 0.5), inset 0 1px 0 rgba(0, 0, 0, 0.2);
+}
+
+.rejection-message,
+.error-message {
+  display: none;
+  margin: 1.5rem auto;
+  padding: 1.5rem;
+  border-radius: 4px;
+  text-align: center;
+  font-family: "silkscreen", sans-serif;
+  max-width: 320px;
+  width: 100%;
+}
+
+.rejection-message {
+  border: 2px solid #ffc800;
+  background: rgba(255, 200, 0, 0.1);
+  box-shadow: 0 0 10px rgba(255, 200, 0, 0.3);
+}
+
+.error-message {
+  border: 2px solid #ff6b6b;
+  background: rgba(255, 107, 107, 0.1);
+  box-shadow: 0 0 10px rgba(255, 107, 107, 0.3);
+}
+
+.rejection-content h3,
+.error-content h3 {
+  margin: 0 0 1rem 0;
+  font-size: 1.1rem;
+  text-transform: uppercase;
+}
+
+.rejection-message h3 {
+  color: #ffc800;
+  text-shadow: 0 0 5px rgba(255, 200, 0, 0.5);
+}
+
+.error-message h3 {
+  color: #ff6b6b;
+  text-shadow: 0 0 5px rgba(255, 107, 107, 0.5);
+}
+
+.rejection-content p,
+.error-content p {
+  margin: 0.5rem 0;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.rejection-message p {
+  color: #ffcc00;
+}
+
+.error-message p {
+  color: #ffaa99;
+}
+
+.rejection-content strong,
+.error-content strong {
+  font-weight: bold;
+}
+
+.rejection-message strong {
+  color: #ffc800;
+}
+
+.error-message strong {
+  color: #ff6b6b;
+}
+
+.rejection-message .restart-game-btn,
+.error-message .restart-game-btn {
+  margin-top: 1rem;
 }

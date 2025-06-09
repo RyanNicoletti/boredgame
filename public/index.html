@@ -70,7 +70,25 @@
                 <input type="text" id="initials" name="initials" maxlength="3" />
                 <input class="gameover-submit-btn" type="submit" value="Submit"/>
               </form>
+              
+              <!-- Rejection message container -->
+              <div id="score-rejection-message" class="rejection-message" style="display: none;">
+                <div class="rejection-content">
+                  <p>Beat your previous score of <strong id="existing-score">0</strong> to update the leaderboard!</p>
+                  <button class="restart-game-btn">Try Again</button>
+                </div>
+              </div>
+              
+              <!-- Error message container -->
+              <div id="error-message" class="error-message" style="display: none;">
+                <div class="error-content">
+                  <h3>Submission Error</h3>
+                  <p id="error-text">Something went wrong. Please try again.</p>
+                  <button class="restart-game-btn">Try Again!</button>
+                </div>
+              </div>
             </div>
+            
             <div class="post-submission-section" style="display: none;">
               <div class="post-submission-title" id="post-submission-title">LEADERBOARD</div>
               <div class="post-submission-leaderboard">
