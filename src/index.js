@@ -8,11 +8,35 @@ export default {
     } else if (url.pathname === "/api/postScore") {
       const response = await postScore(request, env);
       return response;
+    } else if (url.pathname === "/api/getToken") {
+      const response = await getToken(env);
+      return response;
     }
 
     return env.ASSETS.fetch(request);
   },
 };
+
+async function getToken(env) {
+  try {
+    const token = crypto.randomUUID();
+    const timestamp = Date.now();
+
+    await env.LEADERBOARD.put(`token:${token}`, timestamp.toString(), {
+      expirationTtl: 1200,
+    });
+
+    return new Response(JSON.stringify({ token, timestamp }), {
+      headers: { "Content-Type": "application/json" },
+    });
+  } catch (e) {
+    console.error("Error generating token:", e);
+    return new Response(JSON.stringify({ error: "Failed to generate token" }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+}
 
 async function getScores(env) {
   try {
@@ -30,15 +54,63 @@ async function getScores(env) {
 }
 
 async function postScore(request, env) {
-  let high_scores = await env.LEADERBOARD.get("high_scores", "json");
-
-  if (!high_scores) {
-    high_scores = [];
-  }
-
   try {
     const res = await request.json();
-    const player = res.data;
+
+    const { data: player, token, gameStartTime, gameEndTime } = res;
+
+    const storedTimestamp = await env.LEADERBOARD.get(`token:${token}`);
+    if (!storedTimestamp) {
+      return new Response(
+        JSON.stringify({
+          success: false,
+          rejected: true,
+          reason: "Invalid or expired token",
+        }),
+        {
+          status: 400,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    }
+
+    const gameDuration = gameEndTime - gameStartTime;
+    if (gameDuration < 3000) {
+      await env.LEADERBOARD.delete(`token:${token}`);
+      return new Response(
+        JSON.stringify({
+          success: false,
+          rejected: true,
+          reason: "Game completed too quickly",
+        }),
+        {
+          status: 400,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    }
+
+    if (!player.initials || player.initials.length !== 3) {
+      return new Response(
+        JSON.stringify({
+          success: false,
+          rejected: true,
+          reason: "Initials must be exactly 3 characters",
+        }),
+        {
+          status: 400,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    }
+
+    await env.LEADERBOARD.delete(`token:${token}`);
+
+    let high_scores = await env.LEADERBOARD.get("high_scores", "json");
+
+    if (!high_scores) {
+      high_scores = [];
+    }
 
     const existingPlayerIndex = high_scores.findIndex(
       (score) => score.initials === player.initials

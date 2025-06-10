@@ -1,3 +1,17 @@
+export async function getGameToken() {
+  try {
+    const response = await fetch("/api/getToken");
+    if (!response.ok) {
+      throw new Error("Failed to get game token");
+    }
+    const data = await response.json();
+    return data;
+  } catch (e) {
+    console.log(e, "error getting token");
+    return null;
+  }
+}
+
 export async function checkIfHighScore(score) {
   try {
     const response = await fetch("/api/getScores");
@@ -31,19 +45,25 @@ export async function fetchLeaderboard() {
   }
 }
 
-export async function addHighScore(data) {
+export async function addHighScore(data, token, gameStartTime, gameEndTime) {
   try {
     const response = await fetch("/api/postScore", {
       method: "POST",
-      body: JSON.stringify({ data }),
+      body: JSON.stringify({
+        data,
+        token,
+        gameStartTime,
+        gameEndTime,
+      }),
       headers: {
         "Content-Type": "application/json",
       },
     });
-    if (!response.ok) {
-      throw new Error(`Something went wrong: ${response.status}`);
-    }
+
+    const result = await response.json();
+    return result;
   } catch (e) {
     console.log(e);
+    throw e;
   }
 }

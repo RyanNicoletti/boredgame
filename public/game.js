@@ -3,6 +3,7 @@ import {
   checkIfHighScore,
   addHighScore,
   fetchLeaderboard,
+  getGameToken,
 } from "./scoreService.js";
 
 const GAME_STATES = {
@@ -27,6 +28,8 @@ const initialGameState = {
   speed: 53,
   state: GAME_STATES.IDLE,
   startPosition: START_POSITIONS.LEFT,
+  gameToken: null,
+  gameStartTime: null,
 };
 
 const gameState = {};
@@ -109,8 +112,15 @@ function setTarget(index) {
   gameState.target = index;
 }
 
-function initGame() {
+async function initGame() {
   Object.assign(gameState, initialGameState);
+
+  const tokenData = await getGameToken();
+  if (tokenData) {
+    gameState.gameToken = tokenData.token;
+    gameState.gameStartTime = Date.now();
+  }
+
   document.getElementById("score").textContent = gameState.score;
   gameText = generateGameString();
 
@@ -410,6 +420,14 @@ function showErrorMessage(message) {
   document.getElementById("error-message").style.display = "block";
 }
 
+function showInitialsValidationError() {
+  document.getElementById("error-text").textContent =
+    "Initials must be exactly 3 characters long.";
+
+  document.querySelector(".gameover-form").style.display = "none";
+  document.getElementById("error-message").style.display = "block";
+}
+
 function resetGameOverModal() {
   const formSection = document.querySelector(".high-score-form-section");
   const postSubmissionSection = document.querySelector(
@@ -441,29 +459,37 @@ function setupEventListeners() {
   gameOverForm.addEventListener("submit", async function (e) {
     e.preventDefault();
     const formData = new FormData(gameOverForm);
-    const initials = formData.get("initials").toUpperCase();
+    const initials = formData.get("initials").trim();
+
+    if (initials.length !== 3) {
+      showInitialsValidationError();
+      return;
+    }
+
+    if (!gameState.gameToken || !gameState.gameStartTime) {
+      showErrorMessage("Game session invalid. Please restart the game.");
+      return;
+    }
+
+    const gameEndTime = Date.now();
 
     try {
-      const response = await fetch("/api/postScore", {
-        method: "POST",
-        body: JSON.stringify({
-          data: {
-            initials: initials,
-            score: gameState.score,
-          },
-        }),
-        headers: {
-          "Content-Type": "application/json",
+      const result = await addHighScore(
+        {
+          initials: initials.toUpperCase(),
+          score: gameState.score,
         },
-      });
-
-      const result = await response.json();
+        gameState.gameToken,
+        gameState.gameStartTime,
+        gameEndTime
+      );
 
       if (result.success) {
         const updatedScores = await fetchLeaderboard();
         const playerEntry = updatedScores.find(
           (entry) =>
-            entry.initials === initials && entry.score === gameState.score
+            entry.initials === initials.toUpperCase() &&
+            entry.score === gameState.score
         );
 
         if (playerEntry) {
@@ -476,7 +502,22 @@ function setupEventListeners() {
 
         showPostSubmissionLeaderboard();
       } else if (result.rejected) {
-        showScoreRejectionMessage(result.existingScore, result.submittedScore);
+        if (result.reason === "Score not higher than existing score") {
+          showScoreRejectionMessage(
+            result.existingScore,
+            result.submittedScore
+          );
+        } else if (result.reason === "Initials must be exactly 3 characters") {
+          showInitialsValidationError();
+        } else if (result.reason === "Game completed too quickly") {
+          showErrorMessage("Game completed too quickly. Please play again.");
+        } else if (result.reason === "Invalid or expired token") {
+          showErrorMessage("Game session expired. Please restart the game.");
+        } else {
+          showErrorMessage(
+            result.reason || "Failed to submit score. Please try again."
+          );
+        }
       } else {
         showErrorMessage("Failed to submit score. Please try again.");
       }
