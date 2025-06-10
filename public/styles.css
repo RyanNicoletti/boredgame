@@ -16,8 +16,6 @@
 }
 
 .container {
-  display: grid;
-  grid-template-rows: auto auto;
   min-height: 100vh;
   padding: 2rem;
 }
@@ -27,7 +25,7 @@
   justify-content: space-between;
   max-width: 1200px;
   width: 100%;
-  margin: 0 auto 3rem auto;
+  margin: 0 auto 10rem auto;
 }
 .header h1 {
   font-family: "silkscreen", sans-serif;
@@ -52,24 +50,25 @@
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.05), 2px 2px 5px rgba(0, 0, 0, 0.1);
   border-radius: 4px;
   display: grid;
-  grid-template-rows: auto auto auto;
-  align-self: start;
+  grid-template-rows: auto auto;
+  height: 12rem;
   gap: 2rem;
   padding: 3rem;
   max-width: 1200px;
-  width: 100%;
-  margin: 0 auto 0 auto;
+  width: 80%;
+  margin: 0 auto 5rem auto;
 }
 
 .game-state {
   display: flex;
   justify-content: space-between;
+  margin-left: 3rem;
+  margin-right: 3rem;
 }
 
 .hearts {
   display: flex;
   gap: 0.25rem;
-  align-items: center;
 }
 
 .heart {
@@ -634,7 +633,5 @@
 .instructions {
   display: flex;
   justify-content: center;
-  margin-top: 0;
-  font-size: 1.1rem;
-  color: #666;
+  font-size: 1.5rem;
 }
