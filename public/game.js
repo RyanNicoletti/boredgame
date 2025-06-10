@@ -115,6 +115,7 @@ function setTarget(index) {
 async function initGame() {
   Object.assign(gameState, initialGameState);
 
+  // Get game token and set start time
   const tokenData = await getGameToken();
   if (tokenData) {
     gameState.gameToken = tokenData.token;
@@ -421,11 +422,32 @@ function showErrorMessage(message) {
 }
 
 function showInitialsValidationError() {
-  document.getElementById("error-text").textContent =
-    "Initials must be exactly 3 characters long.";
+  // Create or update inline error message
+  let errorMsg = document.querySelector(".initials-error");
+  if (!errorMsg) {
+    errorMsg = document.createElement("div");
+    errorMsg.className = "initials-error";
+    errorMsg.style.color = "#ff6b6b";
+    errorMsg.style.fontSize = "0.9rem";
+    errorMsg.style.marginTop = "0.5rem";
+    errorMsg.style.textAlign = "center";
+    errorMsg.style.fontFamily = "silkscreen, sans-serif";
 
-  document.querySelector(".gameover-form").style.display = "none";
-  document.getElementById("error-message").style.display = "block";
+    const initialsInput = document.getElementById("initials");
+    initialsInput.parentNode.insertBefore(errorMsg, initialsInput.nextSibling);
+  }
+
+  errorMsg.textContent = "Initials must be exactly 3 characters long.";
+  errorMsg.style.display = "block";
+
+  // Focus back on the input and select all text
+  const initialsInput = document.getElementById("initials");
+  initialsInput.focus();
+  initialsInput.select();
+
+  // Add red border to input
+  initialsInput.style.borderColor = "#ff6b6b";
+  initialsInput.style.boxShadow = "0 0 5px rgba(255, 107, 107, 0.5)";
 }
 
 function resetGameOverModal() {
@@ -438,11 +460,23 @@ function resetGameOverModal() {
   if (postSubmissionSection) postSubmissionSection.style.display = "none";
 
   const initialsInput = document.getElementById("initials");
-  if (initialsInput) initialsInput.value = "";
+  if (initialsInput) {
+    initialsInput.value = "";
+    // Reset input styling
+    initialsInput.style.borderColor = "#ffcc00";
+    initialsInput.style.boxShadow =
+      "0 0 5px rgba(255, 204, 0, 0.3), inset 0 0 5px rgba(0, 0, 0, 0.5)";
+  }
 
   document.querySelector(".gameover-form").style.display = "block";
   document.getElementById("score-rejection-message").style.display = "none";
   document.getElementById("error-message").style.display = "none";
+
+  // Hide initials error message
+  const errorMsg = document.querySelector(".initials-error");
+  if (errorMsg) {
+    errorMsg.style.display = "none";
+  }
 
   submittedScore = null;
 }
@@ -461,11 +495,13 @@ function setupEventListeners() {
     const formData = new FormData(gameOverForm);
     const initials = formData.get("initials").trim();
 
+    // Validate initials length
     if (initials.length !== 3) {
       showInitialsValidationError();
       return;
     }
 
+    // Check if we have a valid token
     if (!gameState.gameToken || !gameState.gameStartTime) {
       showErrorMessage("Game session invalid. Please restart the game.");
       return;
@@ -526,6 +562,21 @@ function setupEventListeners() {
       showErrorMessage("Network error. Please try again.");
     }
   });
+
+  // Clear initials error when user starts typing
+  const initialsInput = document.getElementById("initials");
+  if (initialsInput) {
+    initialsInput.addEventListener("input", function () {
+      const errorMsg = document.querySelector(".initials-error");
+      if (errorMsg) {
+        errorMsg.style.display = "none";
+      }
+      // Reset input styling
+      this.style.borderColor = "#ffcc00";
+      this.style.boxShadow =
+        "0 0 5px rgba(255, 204, 0, 0.3), inset 0 0 5px rgba(0, 0, 0, 0.5)";
+    });
+  }
 
   restartGameBtns.forEach((btn) => {
     btn.addEventListener("click", function (e) {
